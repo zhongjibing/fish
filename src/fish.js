@@ -17,33 +17,32 @@ var Fish = {};
  *      the target object
  */
 Fish.propertiesCopy = function (source, target) {
-    debugger;
 
-    if (!source || typeof(source) !== "object") {
-        target = source;
-    } else {
-        if (!target && Object.prototype.toString.call(source) === "[object Object]") {
-            target = {};
-        }
+    target = target || {};
 
-        if (!target && Object.prototype.toString.call(source) === "[object Array]") {
-            target = [];
-        }
+    if (typeof target !== "object" && typeof target !== "function") {
+        target = {};
+    }
 
-        for (var i in source) {
-            if (source[i] && !target[i]) {
-                if (Object.prototype.toString.call(source[i]) === "[object Object]") {
-                    target[i] = {};
-                }
-                if (Object.prototype.toString.call(source[i]) === "[object Array]") {
-                    target[i] = [];
-                }
+    if (source) {
+        for (var item in source) {
+            var src = source[item];
+            var dest = target[item];
+
+            if (target === src) {
+                continue;
             }
 
-            if (typeof(source[i]) === "object") {
-                this.propertiesCopy(source[i], target[i]);
-            } else {
-                target[i] = source[i];
+            var srcType = Object.prototype.toString.call(src);
+            if (src && ( srcType === "[object Object]" || srcType === "[object Array]" )) {
+                if (srcType === "[object Object]") {
+                    dest = dest && Object.prototype.toString.call(dest) === "[object Object]" ? dest : {};
+                } else {
+                    dest = dest && Object.prototype.toString.call(dest) === "[object Array]" ? dest : [];
+                }
+                target[item] = Fish.propertiesCopy(src, dest);
+            } else if (src !== undefined) {
+                target[item] = src;
             }
         }
     }
